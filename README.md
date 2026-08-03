@@ -28,3 +28,12 @@ Base de Datos, Docker, CI/CD y despliegue.
 - Docker Compose
 - Git
 - GitHub
+
+## Funcionalidades principales
+
+- Gestión de rutas de aprendizaje
+- Gestión de objetivos
+- Seguimiento del progreso
+- Gestión de tareas
+- Recursos de aprendizaje
+- Autenticación de usuarios
