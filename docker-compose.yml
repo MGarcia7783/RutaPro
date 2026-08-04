@@ -1,0 +1,38 @@
+services:
+
+  # ==========================================
+  # Base de datos PostgreSQL
+  # ==========================================
+  postgres:
+    # Imagen oficial de PostgreSQL
+    image: postgres:16
+
+    # Nombre genérico del contenedor
+    container_name: postgres_dev
+
+    # Reiniciar automáticamente salvo que
+    # lo detengamos explícitamente
+    restart: unless-stopped
+
+    # Configuración inicial de PostgreSQL
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: appdev
+
+    # Puerto del equipo : puerto del contenedor
+    ports:
+      - "5432:5432"
+
+    # Persistencia de los datos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+# ==========================================
+# Volúmenes
+# ==========================================
+volumes:
+
+  # Volumen administrado por Docker
+  postgres_data:
