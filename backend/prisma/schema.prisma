@@ -6,20 +6,36 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+// Rol
+
+model Rol {
+  id          String  @id @default(uuid())
+  nombre      String  @unique
+  descripcion String  
+
+  usuarios Usuario[]
+}
 
 // Usuario
 
 model Usuario {
-  id      String  @id @default(uuid())
-  nombre  String
-  email   String  @unique
+  id              String    @id @default(uuid())
+  nombre          String
+  email           String    @unique
+  passwordHash    String?
+  googleId        String?   @unique
+  rolId           String
+  creadoEn        DateTime  @default(now())
+  actualizadoEn   DateTime  @updatedAt
 
+  rol Rol @relation(fields: [rolId], references: [id])
   progresos Progreso[]
 }
 
