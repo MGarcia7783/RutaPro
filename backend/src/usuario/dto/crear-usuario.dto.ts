@@ -1,12 +1,14 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsString,
+  IsUUID,
   Matches,
   MinLength,
 } from 'class-validator';
 
-export class RegisterDto {
+export class CrearUsuarioDto {
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
   @IsString()
   nombre: string;
@@ -23,4 +25,11 @@ export class RegisterDto {
       'La contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial',
   })
   password: string;
+
+  @IsNotEmpty({ message: 'El rol es obligatorio' })
+  @IsUUID('4', { message: 'El rol debe ser un UUID válido' })
+  rolId: string;
+
+  @IsBoolean({ message: 'El estado activo debe ser verdadero o falso' })
+  activo?: boolean;
 }

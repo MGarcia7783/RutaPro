@@ -7,20 +7,22 @@ import {
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma } from '../generated/prisma/client';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from '../../dist/src/auth/interfaces/jwt-payload.interface';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { UsuarioService } from '../usuario/usuario.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
+    private readonly usuarioService: UsuarioService,
     private readonly jwtService: JwtService,
   ) {}
 
-  // 1. Registro
+  // 1. REGISTRO
   async register(registerDto: RegisterDto) {
+    // Buscar el rol del usuario por nombre
     const rolUsuario = await this.prismaService.rol.findUnique({
       where: { nombre: 'Usuario' },
     });
@@ -29,6 +31,16 @@ export class AuthService {
       throw new Error('Rol de usuario no encontrado');
     }
 
+    // Verificar que el email no esté registrado
+    const usuarioExistente = await this.usuarioService.buscarUsuarioPorEmail(
+      registerDto.email,
+    );
+
+    if (usuarioExistente) {
+      throw new ConflictException('El email ya está registrado');
+    }
+
+    // Generar hash de contraseña
     const passwordHash = await bcrypt.hash(registerDto.password, 10);
 
     try {
@@ -49,30 +61,28 @@ export class AuthService {
           email: usuario.email,
         },
       };
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictException('El correo electrónico ya está registrado');
-      }
+    } catch {
       throw new InternalServerErrorException(
         'No fue posible registrar el usuario',
       );
     }
   }
 
-  // 2. Login
+  // 2. LOGIN
   async login(loginDto: LoginDto) {
-    const usuario = await this.prismaService.usuario.findUnique({
-      where: {
-        email: loginDto.email,
-      },
-    });
+    // Buscar por email
+    const usuario = await this.usuarioService.buscarUsuarioPorEmail(
+      loginDto.email,
+    );
 
     // Verificar que el usuario existe y tiene una contraseña registrada
     if (!usuario || !usuario.passwordHash) {
       throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    // Verificar que el usuario esté activo
+    if (!usuario.activo) {
+      throw new UnauthorizedException('El usuario está inactivo');
     }
 
     // Comparar contraseña con el hash almacenado en la bd

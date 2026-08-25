@@ -29,9 +29,9 @@ model Usuario {
   id              String    @id @default(uuid())
   nombre          String
   email           String    @unique
-  passwordHash    String?
-  googleId        String?   @unique
+  passwordHash    String
   rolId           String
+  activo          Boolean   @default(true)
   creadoEn        DateTime  @default(now())
   actualizadoEn   DateTime  @updatedAt
 

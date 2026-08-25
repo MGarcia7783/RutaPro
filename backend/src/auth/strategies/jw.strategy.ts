@@ -18,7 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   // Verificar que el payload contenga los datos necesarios
   async validate(payload: JwtPayload) {
-    if (!payload?.sub || !payload?.email) {
+    if (!payload?.sub || !payload?.email || !payload?.rolId) {
       throw new UnauthorizedException('Token inváido');
     }
 
