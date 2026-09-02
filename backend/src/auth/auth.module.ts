@@ -7,21 +7,35 @@ import { JwtStrategy } from './strategies/jw.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { PassportModule } from '@nestjs/passport';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     PrismaModule,
     UsuarioModule,
     PassportModule,
-    JwtModule.register({
-      // Indicar a Nest qué clave usar para firmar los tokens
-      secret: process.env.JWT_SECRET,
-      signOptions: {
-        // Access tokens dura 2 horas
-        expiresIn: '2h',
+
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 5,
       },
+    ]),
+
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: '15m',
+        },
+      }),
     }),
   ],
+
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, RolesGuard],
 })

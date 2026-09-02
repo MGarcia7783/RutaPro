@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuards } from '../auth/guards/jwt-auth.guard';
@@ -56,7 +57,10 @@ export class UsuarioController {
   // Eliminación lógica (soft delete)
   @Delete(':id')
   @Roles('Administrador')
-  eliminarUsuario(@Param('id') id: string) {
-    return this.usuarioService.eliminarUsuario(id);
+  eliminarUsuario(
+    @Param('id') id: string,
+    @Req() request: { user?: { id: string; email: string; rol: string } },
+  ) {
+    return this.usuarioService.eliminarUsuario(id, request.user!.id);
   }
 }

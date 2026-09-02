@@ -37,6 +37,23 @@ model Usuario {
 
   rol Rol @relation(fields: [rolId], references: [id])
   progresos Progreso[]
+  refreshTokens RefreshToken[]
+}
+
+
+// Refresh RefreshToken
+
+model RefreshToken {
+  id              String    @id @default(uuid())
+  tokenHash       String
+  usuarioId       String
+  expiracion      DateTime
+  revocado        Boolean   @default(false)
+  creadoEn        DateTime  @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
 }
 
 // Ruta

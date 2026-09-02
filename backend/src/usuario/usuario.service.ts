@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
@@ -174,12 +175,48 @@ export class UsuarioService {
     }
   }
 
-  // 5.  USUARIO
-  async eliminarUsuario(id: string) {
+  // 5. ELIMINARUSUARIO
+  async eliminarUsuario(id: string, usuarioActualId: string) {
     // Verificar que el usuario exista
-    await this.obtenerUsuarioPorId(id);
+    const usuario = await this.obtenerUsuarioPorId(id);
+
+    // Un administrador no puede eliminarse a sí mismo
+    if (id === usuarioActualId) {
+      throw new BadRequestException('No puedes eliminarte a ti mismo');
+    }
 
     try {
+      // Obtener el rol Administrador
+      const rolAdministrador = await this.prismaService.rol.findUnique({
+        where: {
+          nombre: 'Administrador',
+        },
+      });
+
+      // Verificar que el rol exista
+      if (!rolAdministrador) {
+        throw new InternalServerErrorException(
+          'No fue posible verificar el rol Administrador',
+        );
+      }
+
+      // Verificar si el usuario a eliminar es un Administrador
+      if (usuario.rolId === rolAdministrador.id) {
+        // Contar los administradores activos
+        const administradoresActivos = await this.prismaService.usuario.count({
+          where: {
+            rolId: rolAdministrador.id,
+            activo: true,
+          },
+        });
+
+        if (administradoresActivos === 1) {
+          throw new BadRequestException(
+            'No puedes eliminar el último administrador activo',
+          );
+        }
+      }
+
       // Desactivar usuario
       await this.prismaService.usuario.update({
         where: {
