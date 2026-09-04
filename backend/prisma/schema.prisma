@@ -35,8 +35,16 @@ model Usuario {
   creadoEn        DateTime  @default(now())
   actualizadoEn   DateTime  @updatedAt
 
+  // Relación con el rol del usuario
   rol Rol @relation(fields: [rolId], references: [id])
+
+  // Objetivos pertenecientes al usuario
+  objetivos Objetivo[]
+
+  // Progresos registrados por el usuario
   progresos Progreso[]
+
+  // Refresh token del usuario
   refreshTokens RefreshToken[]
 }
 
@@ -53,6 +61,24 @@ model RefreshToken {
 
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
+  @@index([usuarioId])
+}
+
+// Objetivos
+
+model Objetivo {
+  id              String    @id @default(uuid())
+  titulo          String
+  descripcion     String?
+  completado      Boolean   @default(false)
+  usuarioId       String
+  creadoEn        DateTime  @default(now())
+  actualizadoEn   DateTime  @updatedAt
+
+  // Relación con el usuario propietario
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  // Índice para facilitar las consultas
   @@index([usuarioId])
 }
 
