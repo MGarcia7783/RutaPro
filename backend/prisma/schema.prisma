@@ -78,11 +78,14 @@ model Objetivo {
   // Relación con el usuario propietario
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
+  // Relación con las rutas
+  rutas ObjetivoRuta[]
+
   // Índice para facilitar las consultas
   @@index([usuarioId])
 }
 
-// Ruta
+// Ruta de aprendizaje
 
 model Ruta {
   id          String    @id @default(uuid())
@@ -91,6 +94,20 @@ model Ruta {
   creadaEn    DateTime  @default(now())
 
   progresos Progreso[]
+  objetivos ObjetivoRuta[]
+}
+
+// Entidad asociativa entre Objetivo y Ruta
+
+model ObjetivoRuta {
+  objetivoId    String
+  rutaId        String
+
+  objetivo  Objetivo  @relation(fields: [objetivoId], references: [id])
+  ruta      Ruta      @relation(fields: [rutaId], references: [id])
+
+  // Crear clave primaria compuesta
+  @@id([objetivoId, rutaId])
 }
 
 // Progreso
@@ -105,7 +122,7 @@ model Progreso {
   actualizacion DateTime  @updatedAt
 
   usuario Usuario @relation(fields: [usuarioId], references: [id])
-  ruta Ruta       @relation(fields: [rutaId], references: [id])
+  ruta    Ruta    @relation(fields: [rutaId], references: [id])
 
   @@unique([usuarioId, rutaId])
 }
