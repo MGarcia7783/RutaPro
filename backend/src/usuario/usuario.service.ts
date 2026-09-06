@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import * as bcrypt from 'bcrypt';
 import { ActualizarUsuarioDto } from './dto/actualizar-usuario.dto';
+import { ListarUsuariosQueryDto } from './dto/listar-usuarios-query.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -106,24 +107,49 @@ export class UsuarioService {
   }
 
   // 2. LSITAR USUARIOS
-  async listarUsuarios() {
+  async listarUsuarios(dto: ListarUsuariosQueryDto) {
+    const { pagina, limite, buscar, activo, rolId, ordenarPor, orden } = dto;
+
+    const where = {
+      ...(activo !== undefined && { activo: activo === 'true' }),
+      ...(rolId && { rolId }),
+      ...(buscar && {
+        OR: [
+          { nombre: { contains: buscar, mode: 'insensitive' as const } },
+          { email: { contains: buscar, mode: 'insensitive' as const } },
+        ],
+      }),
+    };
+
     try {
-      return this.prismaService.usuario.findMany({
-        where: {
-          activo: true,
-        },
-        select: {
-          id: true,
-          nombre: true,
-          email: true,
-          rolId: true,
-          activo: true,
-          creadoEn: true,
-        },
-        orderBy: {
-          creadoEn: 'desc',
-        },
-      });
+      const [usuarios, total] = await Promise.all([
+        this.prismaService.usuario.findMany({
+          where,
+          skip: (pagina - 1) * limite,
+          take: limite,
+
+          select: {
+            id: true,
+            nombre: true,
+            email: true,
+            rolId: true,
+            activo: true,
+            creadoEn: true,
+          },
+          orderBy: {
+            [ordenarPor]: orden,
+          },
+        }),
+        this.prismaService.usuario.count({ where }),
+      ]);
+
+      return {
+        usuarios,
+        total,
+        pagina,
+        limite,
+        totalPaginas: Math.ceil(total / limite),
+      };
     } catch {
       throw new InternalServerErrorException(
         'No fue posible obtener los usuarios',

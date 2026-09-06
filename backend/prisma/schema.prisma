@@ -64,6 +64,18 @@ model RefreshToken {
   @@index([usuarioId])
 }
 
+// Ruta de aprendizaje
+
+model Ruta {
+  id          String    @id @default(uuid())
+  nombre      String    @unique
+  descripcion String
+  creadaEn    DateTime  @default(now())
+
+  progresos Progreso[]
+  objetivos ObjetivoRuta[]
+}
+
 // Objetivos
 
 model Objetivo {
@@ -83,18 +95,9 @@ model Objetivo {
 
   // Índice para facilitar las consultas
   @@index([usuarioId])
-}
 
-// Ruta de aprendizaje
-
-model Ruta {
-  id          String    @id @default(uuid())
-  nombre      String
-  descripcion String
-  creadaEn    DateTime  @default(now())
-
-  progresos Progreso[]
-  objetivos ObjetivoRuta[]
+  // Un usuario no puede tener dos objetivos con el mismo título
+  @@unique([usuarioId, titulo])
 }
 
 // Entidad asociativa entre Objetivo y Ruta
