@@ -1,0 +1,20 @@
+// Ejecutar el seed
+npx prisma db seed
+
+// Comprobar que los datosse insertaron
+npx prisma studio
+
+// Formatea y organiza el archivo schema.prisma
+npx prisma format
+
+// Comprueba que schema.prisma sea válido
+npx prisma validate
+
+// Limpiar las tablas relacionadas
+nox prisma migrate reset
+
+// Ejeuctar migración
+npx prisma migrate dev --name nombre_migracion
+
+// Regenerar prisma
+npx prisma generate

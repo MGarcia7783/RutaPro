@@ -21,8 +21,8 @@ export class CrearObjetivoDto {
   })
   descripcion?: string;
 
-  // Ruta de aprendizaje a la que pertenece el objetivo
-  @IsNotEmpty({ message: 'La ruta de aprendizaje es obligatoria' })
-  @IsUUID('4', { message: 'La rutaId debe ser un UUID válido' })
-  rutaId: string;
+  // Etapa de aprendizaje a la que pertenece el objetivo
+  @IsNotEmpty({ message: 'La etapa de aprendizaje es obligatoria' })
+  @IsUUID('4', { message: 'La etapaId debe ser un UUID válido' })
+  etapaId: string;
 }

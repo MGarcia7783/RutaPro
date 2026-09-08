@@ -15,12 +15,13 @@ export class RutaService {
   constructor(private prismaService: PrismaService) {}
 
   // Crear una nueva ruta de aprendizaje
-  async crear(crearRutaDto: CrearRutaDto) {
+  async crear(crearRutaDto: CrearRutaDto, usuarioId: string) {
     try {
       return await this.prismaService.ruta.create({
         data: {
           nombre: crearRutaDto.nombre,
           descripcion: crearRutaDto.descripcion,
+          usuarioId,
         },
       });
     } catch (error) {
@@ -39,10 +40,11 @@ export class RutaService {
   }
 
   // Listar todas las rutas de aprendizaje
-  async listar(dto: ListarRutasQueryDto) {
+  async listar(dto: ListarRutasQueryDto, usuarioId: string) {
     const { pagina, limite, nombre, ordenarPor, orden } = dto;
 
     const where = {
+      usuarioId,
       ...(nombre && {
         nombre: { contains: nombre, mode: 'insensitive' as const },
       }),
@@ -76,11 +78,12 @@ export class RutaService {
   }
 
   // Obtener una ruta específica mediante su ID
-  async obtenerPorId(id: string) {
+  async obtenerPorId(id: string, usuarioId: string) {
     try {
       const ruta = await this.prismaService.ruta.findUnique({
         where: {
           id,
+          usuarioId,
         },
       });
 
@@ -101,9 +104,13 @@ export class RutaService {
   }
 
   // Actualizar una ruta existente
-  async actualizar(id: string, actualizarRutaDto: ActualizarRutaDto) {
+  async actualizar(
+    id: string,
+    actualizarRutaDto: ActualizarRutaDto,
+    usuarioId: string,
+  ) {
     try {
-      await this.obtenerPorId(id);
+      await this.obtenerPorId(id, usuarioId);
 
       return this.prismaService.ruta.update({
         where: {
@@ -123,27 +130,36 @@ export class RutaService {
   }
 
   // Eliminar una ruta existente
-  async eliminar(id: string) {
+  async eliminar(id: string, usuarioId: string) {
     try {
-      await this.obtenerPorId(id);
+      await this.obtenerPorId(id, usuarioId);
 
-      // Verificar si la ruta tiene objetivos asociados
-      const objetivosAsociados = await this.prismaService.objetivoRuta.count({
+      const etapasRelacionadas = await this.prismaService.etapa.count({
         where: {
           rutaId: id,
         },
       });
 
-      if (objetivosAsociados > 0) {
+      if (etapasRelacionadas > 0) {
         throw new ConflictException(
-          'No se puede eliminar la ruta porque tiene objetivos asociados',
+          'No se puede eliminar la ruta porque tiene etapas relacionadas',
+        );
+      }
+
+      const progresosRelacionados = await this.prismaService.progreso.count({
+        where: {
+          rutaId: id,
+        },
+      });
+
+      if (progresosRelacionados > 0) {
+        throw new ConflictException(
+          'No se puede eliminar la ruta porque tiene progresos relacionados',
         );
       }
 
       await this.prismaService.ruta.delete({
-        where: {
-          id,
-        },
+        where: { id },
       });
 
       return {
@@ -161,19 +177,5 @@ export class RutaService {
         'Error al eliminar la ruta de aprendizaje',
       );
     }
-  }
-
-  // Listar objetivos asociados a una ruta de aprendizaje
-  async listarObjetivosDeRuta(rutaId: string) {
-    await this.obtenerPorId(rutaId);
-
-    return this.prismaService.objetivoRuta.findMany({
-      where: {
-        rutaId,
-      },
-      include: {
-        objetivo: true,
-      },
-    });
   }
 }

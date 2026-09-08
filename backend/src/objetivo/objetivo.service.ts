@@ -15,42 +15,39 @@ export class ObjetivoService {
 
   // 1. CREAR UN OBJETIVO PARA USUARIO AUTENTICADO
   async createObjetivo(crearObjetivoDto: CrearObjetivoDto, usuarioId: string) {
-    // Verificar que la ruta de aprendizaje exista
-    const ruta = await this.prismaService.ruta.findUnique({
-      where: {
-        id: crearObjetivoDto.rutaId,
-      },
-    });
-
-    if (!ruta) {
-      throw new NotFoundException('La ruta de aprendizaje no existe');
-    }
-
     try {
-      // Crear objetivo y la relación con la ruta en una transacción
-      return await this.prismaService.$transaction(async (tx) => {
-        // Crear el objetivo
-        const objetivo = await tx.objetivo.create({
-          data: {
-            titulo: crearObjetivoDto.titulo,
-            descripcion: crearObjetivoDto.descripcion,
-
-            // El propietario se obtiene del JWT
+      // Verificar que la etapa exista y pertenezca a una ruta del usuario
+      const etapa = await this.prismaService.etapa.findFirst({
+        where: {
+          id: crearObjetivoDto.etapaId,
+          ruta: {
             usuarioId,
           },
-        });
+        },
+      });
 
-        // Asociar el objetivo a la ruta de aprendizaje
-        await tx.objetivoRuta.create({
-          data: {
-            objetivoId: objetivo.id,
-            rutaId: crearObjetivoDto.rutaId,
-          },
-        });
+      if (!etapa) {
+        throw new NotFoundException(
+          'La etapa no existe o no pertenece al usuario autenticado',
+        );
+      }
 
-        return objetivo;
+      // Crear objetivo
+      return await this.prismaService.objetivo.create({
+        data: {
+          titulo: crearObjetivoDto.titulo,
+          descripcion: crearObjetivoDto.descripcion,
+          etapaId: crearObjetivoDto.etapaId,
+        },
       });
     } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
+
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
@@ -68,10 +65,14 @@ export class ObjetivoService {
     try {
       return await this.prismaService.objetivo.findMany({
         where: {
-          usuarioId,
+          etapa: {
+            ruta: {
+              usuarioId,
+            },
+          },
         },
         orderBy: {
-          creadoEn: 'desc',
+          titulo: 'asc',
         },
       });
     } catch {
@@ -84,7 +85,7 @@ export class ObjetivoService {
     try {
       return await this.prismaService.objetivo.findMany({
         orderBy: {
-          creadoEn: 'desc',
+          titulo: 'asc',
         },
       });
     } catch {
@@ -100,7 +101,11 @@ export class ObjetivoService {
       const objetivo = await this.prismaService.objetivo.findFirst({
         where: {
           id,
-          usuarioId,
+          etapa: {
+            ruta: {
+              usuarioId,
+            },
+          },
         },
       });
 
@@ -128,7 +133,7 @@ export class ObjetivoService {
     usuarioId: string,
   ) {
     try {
-      // Verificar si el objetivo existe
+      // Verificar que el objetivo pertenece al usuario autenticado
       await this.obtenerObjetivoPorId(id, usuarioId);
 
       return await this.prismaService.objetivo.update({
@@ -136,12 +141,22 @@ export class ObjetivoService {
         data: {
           titulo: actualizarObjetivoDto.titulo,
           descripcion: actualizarObjetivoDto.descripcion,
-          completado: actualizarObjetivoDto.completado,
         },
       });
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      ) {
         throw error;
+      }
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'Ya existe un objetivo con ese mismo título en esta etapa',
+        );
       }
 
       throw new InternalServerErrorException('Error al actualizar el objetivo');
@@ -153,6 +168,18 @@ export class ObjetivoService {
     try {
       // Verificar si el objetivo existe
       await this.obtenerObjetivoPorId(id, usuarioId);
+
+      const tareasRelacionadas = await this.prismaService.tarea.count({
+        where: {
+          objetivoId: id,
+        },
+      });
+
+      if (tareasRelacionadas > 0) {
+        throw new ConflictException(
+          'No se puede eliminar el objetivo porque tiene tareas relacionadas',
+        );
+      }
 
       // Eliminar el objetivo
       await this.prismaService.objetivo.delete({

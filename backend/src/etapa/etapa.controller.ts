@@ -10,44 +10,43 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { RutaService } from './ruta.service';
 import { JwtAuthGuards } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { EtapaService } from './etapa.service';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { CrearRutaDto } from './dto/crear-ruta.dto';
-import { ActualizarRutaDto } from './dto/actualizar-ruta.dto';
-import { ListarRutasQueryDto } from './dto/listar-rutas-query.dto';
+import { CrearEtapaDto } from './dto/crear-etapa.dto';
+import { ActualizarEtapaDto } from './dto/actualizar-etapa.dto';
 
-@Controller('rutas')
+@Controller('etapas')
 @UseGuards(JwtAuthGuards, RolesGuard)
-export class RutaController {
-  constructor(private readonly rutaService: RutaService) {}
+export class EtapaController {
+  constructor(private readonly etapaService: EtapaService) {}
 
-  // Crear ruta de aprendizaje
+  // 1. Crear una nueva etapa
   @Post('nueva')
   @Roles('Administrador', 'Usuario')
   async crear(
-    @Body() crearRutaDto: CrearRutaDto,
+    @Body() crearEtapaDto: CrearEtapaDto,
     @Req() request: { user?: { id: string } },
   ) {
     const usuarioId = request.user!.id;
 
-    return this.rutaService.crear(crearRutaDto, usuarioId);
+    return this.etapaService.crear(crearEtapaDto, usuarioId);
   }
 
-  // Listar todas las rutas de aprendizaje
+  // 2. Lista mis etapas
   @Get()
   @Roles('Administrador', 'Usuario')
   async listar(
-    @Query() dto: ListarRutasQueryDto,
+    @Query('rutaId') rutaId: string | undefined,
     @Req() request: { user?: { id: string } },
   ) {
     const usuarioId = request.user!.id;
 
-    return this.rutaService.listar(dto, usuarioId);
+    return this.etapaService.listar(usuarioId, rutaId);
   }
 
-  // Obtener una ruta por Id
+  // 3. Obtener una etapa por su ID
   @Get(':id')
   @Roles('Administrador', 'Usuario')
   async obtenerPorId(
@@ -56,23 +55,23 @@ export class RutaController {
   ) {
     const usuarioId = request.user!.id;
 
-    return this.rutaService.obtenerPorId(id, usuarioId);
+    return this.etapaService.obtenerPorId(id, usuarioId);
   }
 
-  // Actualizar ruta de aprendizaje
+  // 4. Actualizar una etapa
   @Patch(':id')
   @Roles('Administrador', 'Usuario')
   async actualizar(
     @Param('id') id: string,
-    @Body() actualizarRutaDto: ActualizarRutaDto,
+    @Body() actualizarEtapaDto: ActualizarEtapaDto,
     @Req() request: { user?: { id: string } },
   ) {
     const usuarioId = request.user!.id;
 
-    return this.rutaService.actualizar(id, actualizarRutaDto, usuarioId);
+    return this.etapaService.actualizar(id, actualizarEtapaDto, usuarioId);
   }
 
-  // Eliminar ruta de aprendizaje
+  // 5. Eliminar una etapa
   @Delete(':id')
   @Roles('Administrador', 'Usuario')
   async eliminar(
@@ -80,6 +79,7 @@ export class RutaController {
     @Req() request: { user?: { id: string } },
   ) {
     const usuarioId = request.user!.id;
-    return this.rutaService.eliminar(id, usuarioId);
+
+    return this.etapaService.eliminar(id, usuarioId);
   }
 }

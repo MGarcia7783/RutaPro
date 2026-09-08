@@ -4,8 +4,8 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
   moduleFormat = "cjs"
 }
 
@@ -16,48 +16,45 @@ datasource db {
 // Rol
 
 model Rol {
-  id          String  @id @default(uuid())
-  nombre      String  @unique
-  descripcion String  
+  id          String @id @default(uuid())
+  nombre      String @unique
+  descripcion String
 
+  // usuarios pertenecientes al rol 
   usuarios Usuario[]
 }
 
 // Usuario
 
 model Usuario {
-  id              String    @id @default(uuid())
-  nombre          String
-  email           String    @unique
-  passwordHash    String
-  rolId           String
-  activo          Boolean   @default(true)
-  creadoEn        DateTime  @default(now())
-  actualizadoEn   DateTime  @updatedAt
+  id            String   @id @default(uuid())
+  nombre        String
+  email         String   @unique
+  passwordHash  String
+  rolId         String
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
 
   // Relación con el rol del usuario
   rol Rol @relation(fields: [rolId], references: [id])
 
-  // Objetivos pertenecientes al usuario
-  objetivos Objetivo[]
-
-  // Progresos registrados por el usuario
-  progresos Progreso[]
+  // Rutas pertenecientes al usuario
+  rutas Ruta[]
 
   // Refresh token del usuario
   refreshTokens RefreshToken[]
 }
 
-
 // Refresh RefreshToken
 
 model RefreshToken {
-  id              String    @id @default(uuid())
-  tokenHash       String
-  usuarioId       String
-  expiracion      DateTime
-  revocado        Boolean   @default(false)
-  creadoEn        DateTime  @default(now())
+  id         String   @id @default(uuid())
+  tokenHash  String
+  usuarioId  String
+  expiracion DateTime
+  revocado   Boolean  @default(false)
+  creadoEn   DateTime @default(now())
 
   usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
@@ -67,65 +64,78 @@ model RefreshToken {
 // Ruta de aprendizaje
 
 model Ruta {
-  id          String    @id @default(uuid())
-  nombre      String    @unique
+  id          String   @id @default(uuid())
+  nombre      String   @unique
   descripcion String
-  creadaEn    DateTime  @default(now())
+  usuarioId   String
+  creadaEn    DateTime @default(now())
 
-  progresos Progreso[]
-  objetivos ObjetivoRuta[]
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+
+  etapas    Etapa[]
+  progresos Progreso?
+
+  @@index([usuarioId])
+}
+
+// Etapas
+
+model Etapa {
+  id          String  @id @default(uuid())
+  nombre      String
+  descripcion String?
+  orden       Int
+  rutaId      String
+
+  ruta      Ruta       @relation(fields: [rutaId], references: [id])
+  objetivos Objetivo[]
+
+  @@unique([rutaId, orden])
+  @@unique([rutaId, nombre])
+  @@index([rutaId])
 }
 
 // Objetivos
 
 model Objetivo {
-  id              String    @id @default(uuid())
-  titulo          String
-  descripcion     String?
-  completado      Boolean   @default(false)
-  usuarioId       String
-  creadoEn        DateTime  @default(now())
-  actualizadoEn   DateTime  @updatedAt
+  id          String  @id @default(uuid())
+  titulo      String
+  descripcion String?
+  etapaId     String
 
-  // Relación con el usuario propietario
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  etapa  Etapa   @relation(fields: [etapaId], references: [id])
+  tareas Tarea[]
 
-  // Relación con las rutas
-  rutas ObjetivoRuta[]
-
-  // Índice para facilitar las consultas
-  @@index([usuarioId])
-
-  // Un usuario no puede tener dos objetivos con el mismo título
-  @@unique([usuarioId, titulo])
+  @@unique([etapaId, titulo])
+  @@index([etapaId])
 }
 
-// Entidad asociativa entre Objetivo y Ruta
+// Tareas
 
-model ObjetivoRuta {
+model Tarea {
+  id            String   @id @default(uuid())
+  titulo        String
+  descripcion   String?
+  completada    Boolean  @default(false)
   objetivoId    String
-  rutaId        String
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
 
-  objetivo  Objetivo  @relation(fields: [objetivoId], references: [id])
-  ruta      Ruta      @relation(fields: [rutaId], references: [id])
+  objetivo Objetivo @relation(fields: [objetivoId], references: [id])
 
-  // Crear clave primaria compuesta
-  @@id([objetivoId, rutaId])
+  @@unique([objetivoId, titulo])
+  @@index([objetivoId])
 }
 
 // Progreso
 
 model Progreso {
-  id            String    @id @default(uuid())
+  id            String   @id @default(uuid())
+  rutaId        String   @unique
   estado        String
-  porcentaje    Int       @default(0)
-  usuarioId     String
-  rutaId        String
-  creadoEn      DateTime  @default(now())
-  actualizacion DateTime  @updatedAt
+  porcentaje    Int      @default(0)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
 
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
-  ruta    Ruta    @relation(fields: [rutaId], references: [id])
-
-  @@unique([usuarioId, rutaId])
+  ruta Ruta @relation(fields: [rutaId], references: [id])
 }

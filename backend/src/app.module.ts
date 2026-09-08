@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { ObjetivoModule } from './objetivo/objetivo.module';
 import { RutaModule } from './ruta/ruta.module';
+import { EtapaModule } from './etapa/etapa.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -29,6 +30,7 @@ import * as Joi from 'joi';
     PrismaModule,
     ObjetivoModule,
     RutaModule,
+    EtapaModule,
   ],
   controllers: [],
   providers: [],

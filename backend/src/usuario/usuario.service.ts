@@ -243,6 +243,19 @@ export class UsuarioService {
         }
       }
 
+      // Verificar si el usuario tiene rutas asociadas
+      const rutasRelacionadas = await this.prismaService.ruta.count({
+        where: {
+          usuarioId: id,
+        },
+      });
+
+      if (rutasRelacionadas > 0) {
+        throw new ConflictException(
+          'No se puede eliminar el usuario porque tiene rutas de aprendizaje asociadas',
+        );
+      }
+
       // Desactivar usuario
       await this.prismaService.usuario.update({
         where: {
@@ -254,7 +267,16 @@ export class UsuarioService {
       });
 
       return { message: 'Usuario eliminado exitosamente' };
-    } catch {
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException ||
+        error instanceof NotFoundException ||
+        error instanceof InternalServerErrorException
+      ) {
+        throw error;
+      }
+
       throw new InternalServerErrorException(
         'No fue posible eliminar el usuario',
       );
