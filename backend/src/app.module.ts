@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { PrismaModule } from './infrastructure/database/prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
-import { ObjetivoModule } from './objetivo/objetivo.module';
-import { RutaModule } from './ruta/ruta.module';
-import { EtapaModule } from './etapa/etapa.module';
+import { TareasModule } from './presentation/tareas/tareas.module';
+import { UsuariosModule } from './presentation/usuarios/usuarios.module';
+import { AuthModule } from './presentation/auth/auth.module';
+import { SeedService } from './infrastructure/database/seed/seed.service';
+import { RutasModule } from './presentation/rutas/rutas.module';
+import { EtapasModule } from './presentation/etapas/etapas.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -17,6 +19,12 @@ import * as Joi from 'joi';
         DATABASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_REFRESH_SECRET: Joi.string().required(),
+        JWT_ACCESS_TOKEN_EXPIRATION: Joi.string().required(),
+
+        JWT_REFRESH_TOKEN_EXPIRATION_DAYS: Joi.number()
+          .integer()
+          .positive()
+          .required(),
 
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'test')
@@ -28,11 +36,11 @@ import * as Joi from 'joi';
 
     AuthModule,
     PrismaModule,
-    ObjetivoModule,
-    RutaModule,
-    EtapaModule,
+    RutasModule,
+    EtapasModule,
+    TareasModule,
+    UsuariosModule,
   ],
-  controllers: [],
-  providers: [],
+  providers: [SeedService],
 })
 export class AppModule {}

@@ -1,0 +1,1 @@
+export const ETAPA_REPOSITORY = Symbol('ETAPA_REPOSITORY');

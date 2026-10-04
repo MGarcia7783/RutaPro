@@ -1,0 +1,1 @@
+export const TAREA_REPOSITORY = Symbol('TAREA_REPOSITORY');

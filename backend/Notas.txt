@@ -1,0 +1,189 @@
+
+## I. IMPLEMENTAR SEED
+
+1. Crear rol.seed.ts
+src/infrastructure/database/seed/rol.seed.ts
+
+2. Crear usuario.seed.ts
+src/infrastructure/database/seed/usuario.seed.ts
+
+3. Crear seed.service.ts
+src/infrastructure/database/seed/seed.service.ts
+
+4. Registrar SeedService
+src/app.module.ts
+
+5. Crear la infraestructura de Prisma
+src/infrastructure/database/prisma/prisma.service.ts
+
+6. Crear prisma.module.ts
+src/infrastructure/database/prisma/prisma.module.ts
+
+7. Registrar PrismaModule en Appmodule
+src/app.module.ts
+-----------------------------------------------------------
+
+## II. AUTORIZACIÓN Y AUTENTICACIÓN
+
+1. Crear entidades de dominio
+src/domain/entities/rol.entity.ts
+src/domain/entities/refresh-token.entity.ts
+
+2. Crear contratos del repositorio
+src/domain/repositories/rol.repository.ts
+src/domain/repositories/refresh-token.repository.ts
+
+3. Crear tokens de inyección
+src/application/common/rol-repository.token.ts
+src/application/common/refresh-token-repository.token.ts
+
+4. Crear interfaces de autenticación
+src/application/auth/interface/auth-user.interface.ts
+src/application/auth/interface/jwt-payload.interface.ts
+
+5. Crear implementaciones de prisma de los repositorios
+src/infrastructure/repositories/prisma-rol.repository.ts
+src/infrastructure/repositories/prisma-refresh-token.repository.ts
+
+6. Crear casos de uso
+src/application/auth/register.use-case.ts
+src/application/auth/login.use-case.ts
+src/application/auth/refresh-token.use-case.ts
+src/application/auth/logout.use-case.ts
+
+7. Crear estrategia JWT
+src/infrastructure/auth/jwt.strategy.ts
+
+8. Crear JWT Guard
+src/infrastructure/auth/guards/jwt-auth.guard.ts
+
+9. Crear decorator de roles
+src/infrastructure/auth/decorators/roles.decorator.ts
+
+10. Crear Roles Guard
+src/infrastructure/auth/guards/roles.guard.ts
+
+11. Crear DTOs
+src/presentation/auth/dto/register.dto.ts
+src/presentation/auth/dto/login.dto.ts
+
+12. Crear el Controller
+src/presentation/auth/auth.controller.ts
+
+13. Crear Module
+src/presentation/auth/auth.module.ts
+
+14. Integrar Auth en AppModule
+src/app.module.ts
+-----------------------------------------------------------
+
+## III. GESTIÓN DE USUARIOS
+
+1. Crear entidad de dominio
+src/domain/entities/usuario.entity.ts
+
+2. Crear tipos comunes reutilizables
+src/domain/common/resultado-paginado.ts
+
+3. Crear filtros para usuaio
+src/domain/common/filtros-usuario.ts
+
+4. Crear contrato del repositorio
+src/domain/repositories/usuario.repository.ts
+
+5. Crear token de inyección
+src/application/common/usuario-repository.token.ts
+
+6. Crear implementación del repositorio
+src/infrastructure/repositories/prisma-usuario.repository.ts
+
+7. Crear casos de uso
+src/application/usuario/crear-usuario.use-case.ts
+src/application/usuario/listar-usuario.use-case.ts
+src/application/usuario/obtener-usuario.use-case.ts
+src/application/usuario/actualizar-usuario.use-case.ts
+src/application/usuario/eliminar-usuario.use-case.ts
+
+8. Crear Module
+src/usuario/usuario.module.ts
+
+9. Crear DTO
+src/presentation/common/dto/paginacion.dto
+
+src/presentation/usuarios/dto/listar-usuarios.dto
+src/presentation/usuarios/dto/crear-usuario.dto.ts
+src/presentation/usuarios/dto/actualizar-usuario.dto.ts
+
+10. Crear el Controller
+touch src/presentation/usuarios/tarea.controller.ts
+-----------------------------------------------------------
+
+## IV. GESTIÓN DE RUTAS DE APRENDIZAJES
+
+1. Crear entidad de dominio
+src/domain/entities/ruta.entity.ts
+
+2. Crear contratos de repositorios
+src/domain/repositories/ruta.repository.ts
+
+3. Crear implementación del repositorio
+src/infrastructure/repositories/prisma-ruta.repository.ts
+
+4. Crear token de inyección
+src/application/common/ruta-repository.token.ts
+
+5. Crear casos de uso
+src/application/ruta/crear-ruta.use-case.ts
+src/application/ruta/listar-rutas.use-case.ts
+src/application/ruta/obtener-ruta.use-case.ts
+src/application/ruta/actualizar-ruta.use-case.ts
+src/application/ruta/eliminar-ruta.use-case.ts
+
+6. Crear Module
+src/presentation/rutas/ruta.module.ts
+
+7. Crear DTO
+src/presentation/rutas/crear-ruta.dto.ts
+src/presentation/rutas/listar-ruta-query.dto.ts
+src/presentation/rutas/buscar-ruta-query.dto.ts
+src/presentation/rutas/actualizar-ruta.dto.ts
+
+8. Crear el Controller
+touch src/presentation/rutas/ruta.controller.ts
+-----------------------------------------------------------
+
+## IV. GESTIÓN DE ETAPAS DE APRENDIZAJES
+
+1. Crear entidad de dominio
+src/domain/entities/etapa.entity.ts
+
+2. Crear contratos de repositorios
+src/domain/repositories/etapa.repository.ts
+
+3. Crear implementación del repositorio
+src/infrastructure/repositories/prisma-etapa.repository.ts
+
+4. Crear token de inyección
+src/application/common/etapa-repository.token.ts
+
+5. Crear casos de uso
+src/application/etapa/crear-etapa.use-case.ts
+src/application/etapa/listar-etapas.use-case.ts
+src/application/etapa/obtener-etapa.use-case.ts
+src/application/etapa/actualizar-etapa.use-case.ts
+src/application/etapa/eliminar-etapa.use-case.ts
+
+6. Crear Module
+src/presentation/etapas/etapa.module.ts
+
+7. Crear DTO
+src/presentation/etapas/crear-etapa.dto.ts
+src/presentation/etapas/listar-etapa-query.dto.ts
+src/presentation/etapas/actualizar-etapa.dto.ts
+src/presentation/etapas/eliminar-etapa.dto.ts
+
+8. Crear el Controller
+touch src/presentation/etapas/etapa.controller.ts
+-----------------------------------------------------------
+
+## IV. GESTIÓN DE TAREAS
