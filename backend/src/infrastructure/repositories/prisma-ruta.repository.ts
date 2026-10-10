@@ -3,14 +3,38 @@ import { PrismaService } from '../database/prisma/prisma.service';
 import { RutaRepository } from '../../domain/repositories/ruta.repository';
 import { ResultadoPaginado } from '../../domain/common/resultado-paginado';
 import { Ruta } from '../../domain/entities/ruta.entity';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma, Progreso } from '../../generated/prisma/client';
 
 @Injectable()
 export class PrismaRutaRepository implements RutaRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async guardar(ruta: Ruta): Promise<Ruta> {
-    const nuevaRuta = await this.prisma.ruta.create({
+  async crear(ruta: Ruta, progreso: Progreso): Promise<Ruta> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.ruta.create({
+        data: {
+          id: ruta.id,
+          nombre: ruta.nombre,
+          descripcion: ruta.descripcion,
+          usuarioId: ruta.usuarioId,
+        },
+      });
+
+      await tx.progreso.create({
+        data: {
+          id: progreso.id,
+          rutaId: progreso.rutaId,
+          estado: progreso.estado,
+          porcentaje: progreso.porcentaje,
+          creadoEn: progreso.creadoEn,
+          actualizadoEn: progreso.actualizadoEn,
+        },
+      });
+    });
+
+    return ruta;
+
+    /*const nuevaRuta = await this.prisma.ruta.create({
       data: {
         id: ruta.id,
         nombre: ruta.nombre,
@@ -18,7 +42,7 @@ export class PrismaRutaRepository implements RutaRepository {
         usuarioId: ruta.usuarioId,
       },
     });
-    return this.mapear(nuevaRuta);
+    return this.mapear(nuevaRuta);*/
   }
 
   async listar(

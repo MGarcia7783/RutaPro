@@ -187,3 +187,43 @@ touch src/presentation/etapas/etapa.controller.ts
 -----------------------------------------------------------
 
 ## IV. GESTIÓN DE TAREAS
+-----------------------------------------------------------
+
+## V. GESTIÓN DE PROGRESO
+
+1. Crear entidad de dominio
+src/domain/enums/estado-progreso.enum.ts
+src/domain/entities/progreso.entity.ts
+
+2. Crear contratos de repositorios
+src/domain/repositories/progreso.repository.ts
+
+3. Crear implementación del repositorio
+src/infrastructure/repositories/prisma-progreso.repository.ts
+
+4. Crear token de inyección
+src/application/common/progreso-repository.token.ts
+
+5. Crear casos de uso
+src/application/progreso/obtener-progreso.use-case.ts
+
+6. Crear Module
+src/presentation/progreso/progreso.module.ts
+
+8. Crear el Controller
+touch src/presentation/progreso/progreso.controller.ts
+
+9. Modificar crear de RutaRepositoy
+src/domain/repositories/ruta.repository.ts
+
+10. Modificar crear de PrismaRutaRepository
+src/infrastructure/repositories/prisma-ruta.repository.ts
+
+11. Modificar CrearRutaUseCase
+src/application/ruta/crear-ruta.use-case.ts
+
+12. Modificar TareasModule
+
+13. Modificar Casos de uso de Tarea
+src/application/etapa/actualizar-tarea.use-case.ts
+src/application/etapa/eliminar-tarea.use-case.ts

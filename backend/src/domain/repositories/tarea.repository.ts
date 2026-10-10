@@ -18,6 +18,12 @@ export interface TareaRepository {
     id: string,
   ): Promise<{ tarea: Tarea; usuarioId: string; usuario: string } | null>;
 
+  obtenerResumenPorRuta(
+    rutaid: string,
+  ): Promise<{ total: number; completadas: number }>;
+
+  obtenerRutaIdPorEtapa(etapaId: string): Promise<string | null>;
+
   actualizar(tarea: Tarea): Promise<Tarea>;
 
   eliminar(id: string): Promise<void>;

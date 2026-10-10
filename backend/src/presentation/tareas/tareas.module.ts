@@ -8,13 +8,20 @@ import { ListarTareasUseCase } from '../../application/tareas/listar-tareas.use-
 import { ObtenerTareaUseCase } from '../../application/tareas/obtener-tarea.use-case';
 import { ActualizarTareaUseCase } from '../../application/tareas/actualizar-tarea.use-case';
 import { EliminarTareaUseCase } from '../../application/tareas/eliminar-tarea.use-case';
+import { PROGRESO_REPOSITORY } from '../../application/common/progreso-repository.token';
+import { PrismaProgresoRepository } from '../../infrastructure/repositories/prisma-progreso.repository';
 
 @Module({
+  controllers: [TareasController],
   providers: [
     PrismaService,
     {
       provide: TAREA_REPOSITORY,
       useClass: PrismaTareaRepository,
+    },
+    {
+      provide: PROGRESO_REPOSITORY,
+      useClass: PrismaProgresoRepository,
     },
     CrearTareaUseCase,
     ListarTareasUseCase,
@@ -23,6 +30,5 @@ import { EliminarTareaUseCase } from '../../application/tareas/eliminar-tarea.us
     EliminarTareaUseCase,
   ],
   exports: [TAREA_REPOSITORY],
-  controllers: [TareasController],
 })
 export class TareasModule {}

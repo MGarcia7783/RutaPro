@@ -98,7 +98,49 @@ export class PrismaTareaRepository implements TareaRepository {
     };
   }
 
-  // 5. Actualizar una tarea existente
+  // 5. Obtener un resumen de tareas por ruta
+  async obtenerResumenPorRuta(
+    rutaId: string,
+  ): Promise<{ total: number; completadas: number }> {
+    const [total, completadas] = await Promise.all([
+      this.prisma.tarea.count({
+        where: {
+          etapa: {
+            ruta: {
+              id: rutaId,
+            },
+          },
+        },
+      }),
+
+      this.prisma.tarea.count({
+        where: {
+          etapa: {
+            ruta: {
+              id: rutaId,
+            },
+          },
+          completada: true,
+        },
+      }),
+    ]);
+
+    return { total, completadas };
+  }
+
+  // 6. Obtener el ID de la ruta asociada a una etapa
+  async obtenerRutaIdPorEtapa(etapaId: string): Promise<string | null> {
+    const etapa = await this.prisma.etapa.findUnique({
+      where: { id: etapaId },
+      select: {
+        rutaId: true,
+      },
+    });
+
+    return etapa?.rutaId ?? null;
+  }
+
+  // 7. Actualizar una tarea existente
   async actualizar(tarea: Tarea): Promise<Tarea> {
     const tareaActualizada = await this.prisma.tarea.update({
       where: { id: tarea.id },
@@ -111,7 +153,7 @@ export class PrismaTareaRepository implements TareaRepository {
     return this.mapear(tareaActualizada);
   }
 
-  // 6. Eliminar una tarea por su ID
+  // 8. Eliminar una tarea por su ID
   async eliminar(id: string): Promise<void> {
     await this.prisma.tarea.delete({
       where: { id },

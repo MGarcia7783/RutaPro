@@ -7,6 +7,7 @@ import { AuthModule } from './presentation/auth/auth.module';
 import { SeedService } from './infrastructure/database/seed/seed.service';
 import { RutasModule } from './presentation/rutas/rutas.module';
 import { EtapasModule } from './presentation/etapas/etapas.module';
+import { ProgresoModule } from './presentation/progreso/progreso.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -40,6 +41,7 @@ import * as Joi from 'joi';
     EtapasModule,
     TareasModule,
     UsuariosModule,
+    ProgresoModule,
   ],
   providers: [SeedService],
 })

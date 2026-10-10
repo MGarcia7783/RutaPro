@@ -1,8 +1,9 @@
 import { ResultadoPaginado } from '../common/resultado-paginado';
+import { Progreso } from '../entities/progreso.entity';
 import { Ruta } from '../entities/ruta.entity';
 
 export interface RutaRepository {
-  guardar(ruta: Ruta): Promise<Ruta>;
+  crear(ruta: Ruta, progreso: Progreso): Promise<Ruta>;
 
   listar(
     nombre: string | undefined,

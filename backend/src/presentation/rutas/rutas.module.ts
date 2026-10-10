@@ -8,6 +8,8 @@ import { ListarRutasUseCase } from '../../application/rutas/listar-rutas.use-cas
 import { ObtenerRutaUseCase } from '../../application/rutas/obtener-ruta.use-case';
 import { ActualizarRutaUseCase } from '../../application/rutas/actualizar-ruta.use-case';
 import { EliminarRutaUseCase } from '../../application/rutas/eliminar-ruta.use-case';
+import { PROGRESO_REPOSITORY } from '../../application/common/progreso-repository.token';
+import { PrismaProgresoRepository } from '../../infrastructure/repositories/prisma-progreso.repository';
 
 @Module({
   controllers: [RutasController],
@@ -17,6 +19,11 @@ import { EliminarRutaUseCase } from '../../application/rutas/eliminar-ruta.use-c
     {
       provide: RUTA_REPOSITORY,
       useClass: PrismaRutaRepository,
+    },
+
+    {
+      provide: PROGRESO_REPOSITORY,
+      useClass: PrismaProgresoRepository,
     },
 
     CrearRutaUseCase,
