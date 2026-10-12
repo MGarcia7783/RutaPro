@@ -19,7 +19,7 @@ async function bootstrap() {
     ],
     // Permite al navegador enviar la cookie HttpOnly
     // cuando el frontend y backend están trabajen juntos
-    Credentials: true,
+    credentials: true,
   });
 
   // Configurar cookies
